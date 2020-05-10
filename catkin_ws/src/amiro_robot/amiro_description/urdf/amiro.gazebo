@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<robot>
+
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <!--Parameters derived from http://docs.ros.org/kinetic/api/gazebo_plugins/html/gazebo__ros__diff__drive_8cpp_source.html -->
+      <!-- wheelAcceleration needs to be 0 so that the internal ODE PID controller is used.
+           Other values than 0 results into numerical problems as soon as the AMiRo drives 
+           faster than 0.27 m/s. I don't know why that happens, but it correlates with the
+           wheel parameter. If you set the AMiRo wheel diameter to e.g. 1 m, everthing works -->
+      <!-- Increasing wheelTorque value causes the gazebo simulator to be more stable with 
+           little wheel diameters. a value of 5 lets the AMiRo drive at least 1 m/s -->
+      <!-- Additional tutorial: http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo#The_Wheels_on_the_Droid_Go_Round_and_Round -->
+
+      <alwaysOn>true</alwaysOn>
+
+      <!--Plugin parameter-->
+      <commandTopic>${cmd_vel}</commandTopic>
+      <odometryTopic>${odom}</odometryTopic>
+      <odometryFrame>${odom}</odometryFrame>
+      <robotBaseFrame>${base_link}</robotBaseFrame>
+      <publishTf>true</publishTf> <!-- Send tfs -->
+      <publishWheelTF>true</publishWheelTF> <!-- Done by robot_state_publisher -->
+      <publishOdomTF>true</publishOdomTF> <!-- Send the tf between odometry (odom) frame and robot base frame (base_link) -->
+      <publishWheelJointState>true</publishWheelJointState> <!-- Joint messages for robot_state_publisher -->
+      <legacyMode>false</legacyMode>
+
+      <wheelSeparation>${wheel_sep}</wheelSeparation> <!-- Meter -->
+      <wheelDiameter>${wheel_dia}</wheelDiameter> <!-- Meter -->
+      <wheelAcceleration>0.0</wheelAcceleration> <!-- rad/s^2 -->
+      <wheelTorque>5.0</wheelTorque> <!-- Newton -->
+      <updateRate>${update_rate}</updateRate>
+      <odometrySource>world</odometrySource> <!-- Use "encoder" or "world" as source -->
+
+      <leftJoint>${left_wheel_joint}</leftJoint>
+      <rightJoint>${right_wheel_joint}</rightJoint>
+
+      <!--gazebo_ros_utils parameter-->
+      <rosDebugLevel>Info</rosDebugLevel> <!-- Debug, Info, Warn, Error, Fatal -->
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <selfCollide>0</selfCollide>
+  </gazebo>
+
+  <!-- Chassi (s.t. base without caster) -->
+  <gazebo reference="${base_link}">
+    <material>Gazebo/Orange</material>
+    <!-- This might not work-->
+    <fdir1>0 0 0</fdir1>
+    <kp>0</kp>
+    <kd>0</kd>
+    <mu1>0.0</mu1>
+    <mu2>0.0</mu2>
+  </gazebo>
+
+  <!-- Front caster -->
+  <gazebo reference="${right_wheel_link}">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- Back caster -->
+  <gazebo reference="back_caster_link">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- Right wheel -->
+  <gazebo reference="front_caster_link">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- Left wheel -->
+  <gazebo reference="${left_wheel_link}">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- Joints -->
+  <gazebo reference="${right_wheel_joint}">
+    <implicitSpringDamper>0</implicitSpringDamper>
+  </gazebo>
+  
+  <gazebo reference="${left_wheel_joint}">
+    <implicitSpringDamper>0</implicitSpringDamper>
+  </gazebo>
+  
+    <gazebo reference="front_caster_joint">
+    <implicitSpringDamper>0</implicitSpringDamper>
+  </gazebo>
+  
+  <gazebo reference="back_caster_joint">
+    <implicitSpringDamper>0</implicitSpringDamper>
+  </gazebo>
+
+</robot>
